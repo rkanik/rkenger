@@ -1,0 +1,49 @@
+@mixin font($size: 16px, $height: 16px, $color: inherit, $weight: normal) {
+	font-size: $size;
+	line-height: $height;
+	color: $color;
+	font-weight: $weight;
+}
+
+@mixin circle($size) {
+	height: $size;
+	width: $size;
+	min-width: $size;
+	border-radius: 50%;
+}
+
+@mixin rect($size: 1rem) {
+	height: $size;
+	width: $size;
+}
+
+@mixin size($height, $width) {
+	height: $height;
+	width: $width;
+}
+
+@mixin scrollbar() {
+	&::-webkit-scrollbar-thumb {
+		background-color: rgba(white, 0.5);
+		&:hover {
+			background-color: rgba(white, 0.65);
+		}
+	}
+}
+
+// Responsive Mixins
+$breakpoints-down: (
+	"sm": 640px,
+	"md": 768px,
+	"lg": 1024px,
+	"xl": 1280px,
+	"2xl": 1536px,
+);
+
+@mixin on($size) {
+	@media (min-width: map-get(
+      $breakpoints-down , $size
+   )) {
+		@content;
+	}
+}

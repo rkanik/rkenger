@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+button {
+	@apply font-display;
+}
+
+body {
+	@apply font-body;
+}
+
+.text-primary {
+	@apply text-gray-700 dark:text-gray-200 font-medium;
+}
+
+@tailwind utilities;
+
+.hover\:next\:mx-0:hover + * {
+	margin-left: 0 !important;
+	margin-right: 0 !important;
+}

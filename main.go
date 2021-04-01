@@ -1,8 +1,18 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"log"
+	"net/http"
+)
+
+const PORT = ":9000"
 
 func main() {
 
-	fmt.Println("Hello from RKEnger")
+	http.Handle("/", http.FileServer(http.Dir("public")))
+
+	fmt.Println("\nServer Started...")
+	fmt.Printf("http://localhost%s\n", PORT)
+	log.Fatal(http.ListenAndServe(PORT, nil))
 }

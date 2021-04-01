@@ -1,0 +1,31 @@
+body {
+	margin: 0;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+input:focus,
+textarea:focus,
+button:focus {
+	outline: none;
+}
+
+.scrollbar::-webkit-scrollbar {
+	width: 6px;
+}
+.scrollbar {
+	@include scrollbar;
+}
+
+aside.emoji-picker-react {
+	border-color: transparent;
+}
+.emoji-scroll-wrapper {
+	@include scrollbar;
+}
+.dark {
+	aside.emoji-picker-react {
+		background-color: #424242;
+		box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+	}
+}
