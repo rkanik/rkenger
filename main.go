@@ -1,18 +1,24 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
+
+	"github.com/joho/godotenv"
+	"github.com/rkanik/rkenger/router"
 )
 
 const PORT = ":9000"
 
 func main() {
+	loadENV()
+	handler := router.InitializeRoutes()
+	log.Fatal(http.ListenAndServe(PORT, handler))
+}
 
-	http.Handle("/", http.FileServer(http.Dir("public")))
-
-	fmt.Println("\nServer Started...")
-	fmt.Printf("http://localhost%s\n", PORT)
-	log.Fatal(http.ListenAndServe(PORT, nil))
+func loadENV() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 }
