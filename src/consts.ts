@@ -1,3 +1,5 @@
+export const apiBaseURL = 'http://localhost:3500/api/v1'
+
 // Conversations
 export const _group = 'group'
 export const _direct = 'direct'

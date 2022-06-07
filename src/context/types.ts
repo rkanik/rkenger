@@ -1,24 +1,26 @@
+import type { FetchResponse } from 'vuelpers'
+
 // Enums
 export enum MessageTypes {
 	_text = 'text',
 	_image = 'image',
 	_video = 'video',
-	_file = 'video'
+	_file = 'video',
 }
 export enum ConversationTypes {
 	_group = 'group',
-	_direct = 'direct'
+	_direct = 'direct',
 }
 export enum ActionTypes {
 	_setState = 'setState',
 	_pushTo = 'pushTo',
 	_updateTo = 'updateTo',
 	_deleteFrom = 'deleteFrom',
-	_resetState = 'resetState'
+	_resetState = 'resetState',
 }
 export enum MessagesStateArrays {
 	messages = 'messages',
-	conversations = 'conversations'
+	conversations = 'conversations',
 }
 
 // Schemas
@@ -68,24 +70,27 @@ export interface GlobalState {
 	}
 }
 export interface AuthState {
-	user: User;
-	isAuth: boolean;
+	currentUser?: User
+	accessToken?: string
+	refreshToken?: string
+	expiresAt?: Date
 }
 export interface MessagesState {
-	messages: Message[],
-	conversations: Conversation[],
-	conversation: Conversation | null,
+	messages: Message[]
+	conversations: Conversation[]
+	conversation: Conversation | null
 	convDetailsExpanded: boolean
 }
 
 // Context Types
 export interface GlobalContextType extends GlobalState {
-	setState: (payload: any) => void,
-	resetState: () => void,
+	setState: (payload: any) => void
+	resetState: () => void
 }
 export interface AuthContextType extends AuthState {
-	setState: (payload: any) => void;
-	resetState: () => void;
+	setState: (payload: any) => void
+	resetState: () => void
+	login: (user: any) => Promise<[boolean, FetchResponse]>
 }
 export interface MessagesContextType extends MessagesState {
 	setState: (payload: any) => void
@@ -96,8 +101,8 @@ export interface MessagesContextType extends MessagesState {
 }
 
 export type Action = {
-	type: ActionTypes;
-	payload: any | [string, any];
+	type: ActionTypes
+	payload: any | [string, any]
 }
 
 export type Payload<S, V> = [S, V]

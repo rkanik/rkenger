@@ -124,7 +124,6 @@ export const qs = {
 	}
 }
 
-
 interface UpsplashConfig {
 	ixid?: string
 	fit?: string

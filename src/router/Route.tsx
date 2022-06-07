@@ -1,10 +1,10 @@
-import { ElementType } from 'react';
+import { ElementType } from 'react'
 import { Route } from 'react-router-dom'
 
 type Props = {
-	path: string,
-	exact: boolean,
-	layout: ElementType,
+	path: string
+	exact: boolean
+	layout: ElementType
 	component: ElementType
 }
 
@@ -14,12 +14,15 @@ const RouteWrapper: React.FC<Props> = ({
 	...rest
 }) => {
 	return (
-		<Route {...rest} render={(props: any) => (
-			<Layout {...props}>
-				<Component {...props} />
-			</Layout>
-		)} />
-	);
+		<Route
+			{...rest}
+			render={(props: any) => (
+				<Layout {...props}>
+					<Component {...props} />
+				</Layout>
+			)}
+		/>
+	)
 }
 
 export default RouteWrapper

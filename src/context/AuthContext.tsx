@@ -1,41 +1,58 @@
-import { createContext, useEffect } from 'react'
-import { createActions } from "./ActionsCreator"
-import { usePersistedStateWithReducer } from './persistedState'
-import { AuthReducer } from "./reducers/AuthReducer"
-import { authState } from './states'
-import { Action, AuthContextType, AuthState } from './types'
-import { _localAuthState } from '../consts'
+import { AuthApi } from '../services'
+import { viaCallback } from '../fetch'
+import { AuthContextType, AuthState } from './types'
+import { createContext, useContext } from 'react'
+import { createPersistedState } from '../hooks'
 
-const AuthContext = createContext<AuthContextType>({
-	...authState,
-	setState() { },
-	resetState() { },
+const useAuthState = createPersistedState('auth')
+const AuthContext = createContext<AuthContextType | null>(null)
+
+const initialState = (): AuthState => ({
+	expiresAt: undefined,
+	currentUser: undefined,
+	accessToken: undefined,
+	refreshToken: undefined,
 })
 
 const AuthProvider: React.FC = ({ children }) => {
+	const [state, setState] = useAuthState<AuthState>(initialState())
 
-	const [state, dispatch] = usePersistedStateWithReducer({
-		key: _localAuthState, value: authState, reducer: AuthReducer
-	}) as [AuthState, React.Dispatch<Action>]
+	const login = (user: any) => {
+		return viaCallback(AuthApi.login(user), ([err, res]) => {
+			if (err) return
+			setState({
+				currentUser: res.user,
+				accessToken: res.accessToken,
+				refreshToken: res.refreshToken,
+				expiresAt: new Date(Date.now() + res.expiresIn),
+			})
+		})
+	}
 
-	let {
-		setState,
-		resetState
-	} = createActions(dispatch)
-
-	useEffect(() => {
-		console.log('AuthState', state)
-	}, [state])
+	const resetState = () => {
+		setState(initialState())
+	}
 
 	return (
-		<AuthContext.Provider value={{
-			...state,
-			setState,
-			resetState
-		}}>
+		<AuthContext.Provider
+			value={{
+				...state,
+				setState,
+				resetState,
+				login,
+			}}
+		>
 			{children}
 		</AuthContext.Provider>
 	)
 }
 
-export { AuthProvider, AuthContext }
+const useAuthContext = () => {
+	const context = useContext(AuthContext) as AuthContextType
+	if (!context) {
+		throw new Error('AuthContext must be used within AuthProvider')
+	}
+	return context
+}
+
+export { AuthProvider, AuthContext, useAuthContext }

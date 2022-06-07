@@ -1,4 +1,10 @@
-import { BrowserRouter, Switch } from 'react-router-dom'
+import { useEffect } from 'react'
+import {
+	Switch,
+	useHistory,
+	useLocation,
+	BrowserRouter,
+} from 'react-router-dom'
 
 // Wrapper
 import Route from './Route'
@@ -8,23 +14,73 @@ import Default from '../layouts/DefaultLayout'
 
 // Pages
 import Home from '../pages/Home'
-import { MessagesProvider } from '../context/MessagesContext'
+import SignIn from '../pages/SignIn'
+import Register from '../pages/Register'
+
+import { useAuthContext, MessagesProvider } from '../context'
+
+const routes = [
+	{
+		path: '/',
+		requiresAuth: true,
+	},
+	{
+		path: '/messages',
+		requiresAuth: true,
+	},
+	{
+		path: '/signin',
+		requiresUnAuth: true,
+	},
+]
+
+const Routes = () => {
+	const auth = useAuthContext()
+	const history = useHistory()
+	const location = useLocation()
+
+	useEffect(() => {
+		const onBeforeRoutes = () => {
+			const route = routes.find((route) => {
+				return route.path === location.pathname
+			})
+
+			// There is no route guard
+			if (!route) return
+
+			// Ensure user is authenticated
+			if (route.requiresAuth && !auth.currentUser) {
+				return history.push('/signin')
+			}
+
+			// Ensure redirect to home
+			if (route.requiresUnAuth && auth.currentUser) {
+				return history.push('/')
+			}
+		}
+
+		onBeforeRoutes()
+	}, [location, auth.currentUser, history])
+
+	return (
+		<Switch>
+			<Route exact path="/" component={Home} layout={Default} />
+			<Route exact path="/signin" component={SignIn} layout={Default} />
+			<Route exact path="/register" component={Register} layout={Default} />
+			<Route
+				exact
+				path="/messages"
+				component={MessagesProvider}
+				layout={Default}
+			/>
+		</Switch>
+	)
+}
 
 const Router = () => {
 	return (
 		<BrowserRouter>
-			<Switch>
-				<Route
-					exact path='/'
-					component={Home}
-					layout={Default}
-				/>
-				<Route
-					exact path='/messages'
-					component={MessagesProvider}
-					layout={Default}
-				/>
-			</Switch>
+			<Routes />
 		</BrowserRouter>
 	)
 }

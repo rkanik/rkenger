@@ -6,7 +6,7 @@ import Avatar from "./utils/Avatar"
 const placeholderSrc = 'https://modrika.com/wp-content/uploads/avatars/1560/1560-bpfull.jpg'
 
 interface PropsTypes {
-	user: User
+	user?: User
 	active: boolean
 	item: Conversation
 	onClick?: (conversation: Conversation) => void
@@ -47,7 +47,7 @@ const ConversationListItem = ({ active, user, item, onClick }: PropsTypes) => {
 				/>}
 			</div>
 		}
-		let friend = item.members.find(u => u.id !== user.id)
+		let friend = item.members.find(u => u.id !== user?.id)
 		if (friend) return <Avatar src={friend.thumbnail} alt={friend.name} size='h-full w-full' />
 		else return <Avatar src={placeholderSrc} size='h-full w-full' />
 	})()

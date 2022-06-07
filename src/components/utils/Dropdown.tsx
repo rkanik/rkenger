@@ -17,7 +17,7 @@ const Dropdown: React.FC<Props> = ({ children, className, toggler, keepMounted }
 	const onMouseDown = (event: MouseEvent) => {
 		console.log('onMouseDown')
 		// @ts-ignore
-		if (wrapperEl && !wrapperEl.current.contains(event.target)) {
+		if (wrapperEl && (wrapperEl.current && !wrapperEl.current.contains(event.target))) {
 			hideDropdown()
 		}
 	}
