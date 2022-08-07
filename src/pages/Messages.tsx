@@ -1,5 +1,5 @@
-import React, { useContext, useEffect } from 'react'
-import { useAuthContext } from '../context'
+import React, { useCallback, useContext, useEffect } from 'react'
+import { useAuthContext, useConversationContext } from '../context'
 import { History } from 'history'
 import { MessagesContext } from '../context/MessagesContext'
 import { groupify, miniId, random } from '../helpers'
@@ -30,6 +30,13 @@ import { GlobalContext } from '../context/GlobalContext'
 
 type Props = { history: History }
 const Messages: React.FC<Props> = ({ history }) => {
+	const { conversations, fetchConversations } = useConversationContext()
+
+	useEffect(() => {
+		fetchConversations()
+	}, [fetchConversations])
+
+	// LEGACY
 	const $state = useContext(GlobalContext) as GlobalContextType
 	const $auth = useAuthContext()
 	const $msg = useContext(MessagesContext) as MessagesContextType
@@ -47,18 +54,18 @@ const Messages: React.FC<Props> = ({ history }) => {
 	}
 
 	const handleOnMessage = (message: string) => {
-		let msg: Message = {
-			message,
-			id: miniId(),
-			isDelivered: false,
-			isSeen: false,
-			seenBy: [],
-			sendBy: [$auth.currentUser?.id as string, 'SomeoneElse'][random(1)],
-			sendTo: 'other',
-			sentAt: new Date().toString(),
-			type: MessageTypes._text,
-		}
-		$msg.pushTo(['messages', msg])
+		// let msg: Message = {
+		// 	message,
+		// 	id: miniId(),
+		// 	isDelivered: false,
+		// 	isSeen: false,
+		// 	seenBy: [],
+		// 	sendBy: [$auth.currentUser?.id as string, 'SomeoneElse'][random(1)],
+		// 	sendTo: 'other',
+		// 	sentAt: new Date().toString(),
+		// 	type: MessageTypes._text,
+		// }
+		// $msg.pushTo(['messages', msg])
 	}
 
 	// Methods
@@ -125,7 +132,8 @@ const Messages: React.FC<Props> = ({ history }) => {
 					<button className="font-medium">Archived</button>
 					<button className="font-medium">Starred</button>
 				</div>
-				<div className="overflow-hidden max-h-56 flex-1 flex flex-col pt-2">
+				{/* <div className="overflow-hidden max-h-56 flex-1 flex flex-col pt-2">
+					{JSON.stringify(conversations)}
 					<ConversationSubheader text="Groups" />
 					<ConversationList
 						classNames="mt-2"
@@ -140,19 +148,19 @@ const Messages: React.FC<Props> = ({ history }) => {
 							/>
 						)}
 					/>
-				</div>
+				</div> */}
 				<div className="overflow-hidden flex-1 flex flex-col pt-2">
-					<ConversationSubheader text="Direct" />
+					{/* <ConversationSubheader text="Direct" /> */}
 					<ConversationList
 						classNames="mt-2"
-						list={directConversations}
-						item={(item: Conversation, index: number) => (
+						list={conversations}
+						item={(item, index) => (
 							<ConversationListItem
 								key={index}
 								item={item}
 								user={$auth.currentUser}
 								onClick={handleClickConversation}
-								active={$msg.conversation?.id === item.id}
+								active={$msg.conversation?._id === item._id}
 							/>
 						)}
 					/>

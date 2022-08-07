@@ -1,7 +1,7 @@
 import { AuthApi } from '../services'
-import { viaCallback } from '../fetch'
+import { fetch, viaCallback } from '../fetch'
 import { AuthContextType, AuthState } from './types'
-import { createContext, useContext } from 'react'
+import { createContext, useCallback, useContext, useEffect } from 'react'
 import { createPersistedState } from '../hooks'
 
 const useAuthState = createPersistedState('auth')
@@ -32,6 +32,15 @@ const AuthProvider: React.FC = ({ children }) => {
 	const resetState = () => {
 		setState(initialState())
 	}
+
+	const setBearerToken = useCallback(() => {
+		fetch.setHeaders({ Authorization: `Bearer ${state.accessToken}` })
+	}, [state.accessToken])
+
+	if (state.accessToken) setBearerToken()
+	useEffect(() => {
+		setBearerToken()
+	}, [setBearerToken])
 
 	return (
 		<AuthContext.Provider

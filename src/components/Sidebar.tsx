@@ -56,7 +56,7 @@ const Sidebar: React.FC<Props> = () => {
 							item={item}
 							user={$auth.currentUser}
 							onClick={handleClickConversation}
-							active={$msg.conversation?.id === item.id}
+							active={false}
 						/>
 					)}
 				/>
@@ -72,7 +72,7 @@ const Sidebar: React.FC<Props> = () => {
 							item={item}
 							user={$auth.currentUser}
 							onClick={handleClickConversation}
-							active={$msg.conversation?.id === item.id}
+							active={false}
 						/>
 					)}
 				/>

@@ -18,6 +18,9 @@ import SignIn from '../pages/SignIn'
 import Register from '../pages/Register'
 
 import { useAuthContext, MessagesProvider } from '../context'
+import { Test } from '../pages/Test'
+import MessagesLayout from '../layouts/MessagesLayout'
+import Conversation from '../pages/Conversation'
 
 const routes = [
 	{
@@ -67,12 +70,14 @@ const Routes = () => {
 			<Route exact path="/" component={Home} layout={Default} />
 			<Route exact path="/signin" component={SignIn} layout={Default} />
 			<Route exact path="/register" component={Register} layout={Default} />
+			<Route exact path="/messages" layout={MessagesLayout} />
 			<Route
 				exact
-				path="/messages"
-				component={MessagesProvider}
-				layout={Default}
+				path="/messages/:id"
+				component={Conversation}
+				layout={MessagesLayout}
 			/>
+			<Route exact path="/test" component={Test} layout={Default} />
 		</Switch>
 	)
 }

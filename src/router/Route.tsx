@@ -5,7 +5,7 @@ type Props = {
 	path: string
 	exact: boolean
 	layout: ElementType
-	component: ElementType
+	component?: ElementType
 }
 
 const RouteWrapper: React.FC<Props> = ({
@@ -17,9 +17,7 @@ const RouteWrapper: React.FC<Props> = ({
 		<Route
 			{...rest}
 			render={(props: any) => (
-				<Layout {...props}>
-					<Component {...props} />
-				</Layout>
+				<Layout {...props}>{Component && <Component {...props} />}</Layout>
 			)}
 		/>
 	)

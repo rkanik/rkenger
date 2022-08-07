@@ -26,7 +26,9 @@ export enum MessagesStateArrays {
 // Schemas
 export interface User {
 	id: string
+	_id: string
 	name: string
+	username: string
 	email?: string
 	thumbnail: string
 	friends?: string[]
@@ -34,6 +36,8 @@ export interface User {
 export interface Message {
 	id: string
 	type: MessageTypes
+	sender: User
+	text: string
 	message: string
 	sentAt: string
 	sendBy: string
@@ -47,14 +51,25 @@ export interface Message {
 }
 export interface Conversation {
 	id: string
+	_id: string
+	name: string
+	isGroup: boolean
 	type: ConversationTypes
-	color?: string
-	emoji?: string
+	color: string
+	emoji: string
+	count: {
+		members: number
+		messages: number
+	}
 	group?: {
 		name: string
 		thumbnail?: string
 	}
-	members: User[]
+	members: {
+		_id: string
+		user: User
+	}[]
+	messages: Message[]
 	lastMessage?: {
 		message: string
 		sentAt: number
