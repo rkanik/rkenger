@@ -1,5 +1,10 @@
 import { Message } from './context/types'
 
+export type ConversationMessage = {
+	_id: string
+	messages: Pagination<Message>
+}
+
 export type Pagination<T> = {
 	page: number
 	total: number

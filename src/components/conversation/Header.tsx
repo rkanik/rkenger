@@ -27,7 +27,10 @@ const ConversationHeader: React.FC<Props> = ({
 				/>
 				<div className="ml-4">
 					<h4 className="text-primary">
-						{conversation.name || conversation.members[1].user.name}
+						{conversation.isGroup
+							? conversation.name
+							: conversation.members.find((m) => m.user?.name)?.user
+									?.name}
 					</h4>
 					<p className="text-sm text-gray-500">Active now</p>
 				</div>

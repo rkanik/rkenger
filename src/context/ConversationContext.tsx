@@ -12,7 +12,7 @@ export type ConversationState = {
 }
 
 export type TConversationContext = ConversationState & {
-	setCurrentConversation: (conversation: Conversation) => void
+	setCurrentConversation: (conversation: Partial<Conversation>) => void
 	fetchConversations: (payload?: any) => Promise<[boolean, FetchResponse]>
 	fetchConversationById: (
 		id: string,
@@ -49,10 +49,13 @@ const ConversationProvider: React.FC = ({ children }) => {
 	)
 
 	const setCurrentConversation = useCallback(
-		(conversation: Conversation) => {
+		(conversation: Partial<Conversation> = {}) => {
 			setState((state) => ({
 				...state,
-				currentConversation: conversation,
+				currentConversation: {
+					...(state.currentConversation || {}),
+					...conversation,
+				} as Conversation,
 			}))
 		},
 		[setState]

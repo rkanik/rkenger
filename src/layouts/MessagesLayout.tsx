@@ -1,9 +1,6 @@
 import { useAuthContext } from '../context'
 import { useConversations } from '../hooks'
-import { useHistory } from 'react-router-dom'
 import { IconButton } from '../components/utils/Button'
-
-import type { Conversation } from '../context/types'
 
 import ConversationList from '../components/ConversationList'
 import ConversationListItem from '../components/ConversationListItem'

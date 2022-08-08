@@ -20,16 +20,16 @@ const Message: React.FC<Props> = ({ isMe, msg, index, msgsLen, onDelete }) => {
 	// Computed
 	const radius = isMe
 		? {
-				'rounded-br-none': index === 0 && msgsLen === 1,
-				'rounded-b-none': index === 0 && msgsLen > 1,
-				'rounded-t-none': msgsLen > 1 && index === msgsLen - 1,
-				'rounded-b-none rounded-tr-none': index > 0 && index < msgsLen - 1,
+				'rounded-tr-none': index === 0 && msgsLen === 1,
+				'rounded-t-none': index === 0 && msgsLen > 1,
+				'rounded-b-none': msgsLen > 1 && index === msgsLen - 1,
+				'rounded-t-none rounded-br-none': index > 0 && index < msgsLen - 1,
 		  }
 		: {
-				'rounded-bl-none': index === 0 && msgsLen === 1,
-				'rounded-b-none': index === 0 && msgsLen > 1,
-				'rounded-t-none': msgsLen > 1 && index === msgsLen - 1,
-				'rounded-b-none rounded-tl-none': index > 0 && index < msgsLen - 1,
+				'rounded-tl-none': index === 0 && msgsLen === 1,
+				'rounded-t-none': index === 0 && msgsLen > 1,
+				'rounded-b-none': msgsLen > 1 && index === msgsLen - 1,
+				'rounded-t-none rounded-bl-none': index > 0 && index < msgsLen - 1,
 		  }
 
 	return (

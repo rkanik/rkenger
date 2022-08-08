@@ -23,6 +23,12 @@ export enum MessagesStateArrays {
 	conversations = 'conversations',
 }
 
+export type BaseModel = {
+	_id: string
+	createdAt: string
+	updatedAt: string
+}
+
 // Schemas
 export interface User {
 	id: string
@@ -33,8 +39,9 @@ export interface User {
 	thumbnail: string
 	friends?: string[]
 }
-export interface Message {
+export interface Message extends BaseModel {
 	id: string
+	_id: string
 	type: MessageTypes
 	sender: User
 	text: string

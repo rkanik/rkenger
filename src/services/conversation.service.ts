@@ -25,6 +25,9 @@ const Conversations = (id: string) => {
 		fetch: (id: string, query: any) => {
 			return fetch.get(`/conversations/${id}`, query)
 		},
+		fetchMessages(conversationId: string, query: any) {
+			return fetch.get(`/conversations/${conversationId}/messages`, query)
+		},
 	}
 }
 

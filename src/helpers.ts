@@ -1,12 +1,23 @@
 import { mse } from './enums'
 import { Pagination } from './types'
 
-export const initialList = <T>(): Pagination<T> => {
+export const nameInitial = (v = ''): string => {
+	return v
+		.split(' ')
+		.map((v) => v[0] || '')
+		.join('')
+		.substring(0, 2)
+}
+
+export const initialList = <T>(
+	v: Partial<Pagination<T>> = {}
+): Pagination<T> => {
 	return {
 		page: 1,
 		total: 0,
 		perPage: 10,
 		data: [],
+		...v,
 	}
 }
 

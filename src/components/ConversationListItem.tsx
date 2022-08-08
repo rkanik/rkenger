@@ -1,6 +1,6 @@
 import { _group } from '../consts'
 import { Conversation, User } from '../context/types'
-import { classify, howAgo } from '../helpers'
+import { classify, howAgo, nameInitial } from '../helpers'
 import Avatar from './utils/Avatar'
 
 const placeholderSrc =
@@ -62,6 +62,7 @@ const ConversationListItem = ({ active, user, item, onClick }: PropsTypes) => {
 				<Avatar
 					src={friend.user.thumbnail}
 					alt={friend.user.name}
+					text={nameInitial(friend.user.name)}
 					size="h-full w-full"
 				/>
 			)
