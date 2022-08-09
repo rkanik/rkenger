@@ -1,63 +1,48 @@
-import { MessageState, MessageContext } from '../'
+import { MessageState, MessageContext, TMessageContext } from '../'
 import { useCallback } from 'react'
-import { viaCallback } from '../../fetch'
 import { useSuperState } from '../../hooks'
-import { Conversations } from '../../services'
-import { ConversationMessage, Pagination } from '../../types'
+import { ConversationMessage } from '../../types'
 import { Message } from '../types'
-import { initialList } from '../../helpers'
+import { deepMerge } from 'deep-array'
+import { createPaginaion } from 'vuelpers'
+
+import type { Pagination } from 'vuelpers'
 
 const MessageProvider: React.FC = ({ children }) => {
-	const [state, { setState }] = useSuperState<MessageState>({
+	const [state, { setState, setPartialState }] = useSuperState<MessageState>({
 		messages: {},
 		conversationMessages: [],
 	})
 
-	const setMessages = useCallback(
-		(id: string, messages: Pagination<Message>) => {
-			setState((state) => {
-				return {
-					...state,
-					messages: {
-						...state.messages,
-						[id]: messages,
-					},
-				}
-			})
-		},
-		[setState]
-	)
-
-	const fetchMessages = useCallback(
-		async (id: string, payload: any) => {
-			console.log('fetchConversations')
-			return viaCallback(
-				Conversations(id).messages.fetch(payload),
-				([err, res]) => {
-					if (err) return
-					setMessages(id, res.messages)
-				}
-			)
-		},
-		[setMessages]
-	)
-
-	const sendMessage = useCallback(
-		(id: string, message: Partial<Message>) => {
-			return viaCallback(
-				Conversations(id).messages.send(message),
-				([err, res]) => {
-					if (err) return
-					const messages = {
-						...state.messages[id],
-						data: [...state.messages[id].data, res.newMessage],
+	const setConversationMessage = useCallback<
+		TMessageContext['setConversationMessage']
+	>(
+		(_id, payload) => {
+			return setPartialState((state) => ({
+				conversationMessages: state.conversationMessages.map((v) => {
+					if (v._id !== _id) return v
+					return {
+						...v,
+						...(typeof payload === 'function' ? payload(v) : payload),
 					}
-
-					setMessages(id, messages)
-				}
-			)
+				}),
+			}))
 		},
-		[state.messages, setMessages]
+		[setPartialState]
+	)
+
+	const setMessages = useCallback<TMessageContext['setMessages']>(
+		(_id, payload) => {
+			return setConversationMessage(_id, (v) => ({
+				messages: {
+					...v.messages,
+					...(typeof payload === 'function'
+						? payload(v.messages)
+						: payload),
+				},
+			}))
+		},
+		[setConversationMessage]
 	)
 
 	const mergeMessages = useCallback(
@@ -72,9 +57,9 @@ const MessageProvider: React.FC = ({ children }) => {
 					conversation?: ConversationMessage
 				) => {
 					return Array.isArray(messages)
-						? initialList<Message>({
-								page: conversation?.messages.page || 1,
-								perPage: conversation?.messages.perPage || 10,
+						? createPaginaion<Message>({
+								perPage: conversation?.messages.perPage || 25,
+								currentPage: conversation?.messages.currentPage || 1,
 								data: messages,
 						  })
 						: messages
@@ -98,19 +83,25 @@ const MessageProvider: React.FC = ({ children }) => {
 									messages: {
 										...conversation.messages,
 										...messages,
-										data: messages.data.reduce((data, message) => {
-											const index = data.findIndex((v) => {
-												return v._id === message._id
-											})
-											if (index === -1) data = [message, ...data]
-											else {
-												data[index] = {
-													...data[index],
-													...message,
-												}
-											}
-											return data
-										}, conversation.messages.data),
+										data: deepMerge(
+											conversation.messages.data,
+											messages.data,
+											'_id',
+											'push'
+										),
+										// messages.data.reduce((data, message) => {
+										// 	const index = data.findIndex((v) => {
+										// 		return v._id === message._id
+										// 	})
+										// 	if (index === -1) data = [message, ...data]
+										// 	else {
+										// 		data[index] = {
+										// 			...data[index],
+										// 			...message,
+										// 		}
+										// 	}
+										// 	return data
+										// }, conversation.messages.data),
 									},
 								}
 						  })
@@ -129,7 +120,12 @@ const MessageProvider: React.FC = ({ children }) => {
 
 	return (
 		<MessageContext.Provider
-			value={{ ...state, fetchMessages, sendMessage, mergeMessages }}
+			value={{
+				...state,
+				setMessages,
+				mergeMessages,
+				setConversationMessage,
+			}}
 		>
 			{children}
 		</MessageContext.Provider>

@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo } from 'react'
-import { initialList } from './../helpers'
 import { Message, User } from '../context/types'
 import { useMessagesContext } from '../context/hooks'
 import { fetchMessages } from '../services'
 import { useAuthContext } from '../context'
+import { createPaginaion, Pagination } from 'vuelpers'
 
 type MessagesGroup = {
 	sender: User
@@ -13,20 +13,20 @@ type MessagesGroup = {
 
 const useMessages = (conversationId: string) => {
 	const { currentUser } = useAuthContext()
-	const { conversationMessages, mergeMessages } = useMessagesContext()
+	const { conversationMessages, setMessages, mergeMessages } =
+		useMessagesContext()
 
-	const messages = useMemo(() => {
+	const messages = useMemo<Pagination<Message>>(() => {
 		return (
 			conversationMessages.find((conversation) => {
 				return conversation._id === conversationId
-			})?.messages || initialList<Message>()
+			})?.messages || createPaginaion<Message>({ perPage: 10 })
 		)
 	}, [conversationId, conversationMessages])
 
-	// // Locally fethed messages
-	// const conversationMessages = useMemo(() => {
-	// 	return messages[conversationId] || initialList<Message>()
-	// }, [conversationId, messages])
+	const isFetchedAllMessages = useMemo(() => {
+		return messages.currentPage * messages.perPage >= messages.total
+	}, [messages.currentPage, messages.perPage, messages.total])
 
 	// Group messages by sender
 	const messagesGroup = useMemo<MessagesGroup[]>(() => {
@@ -49,12 +49,10 @@ const useMessages = (conversationId: string) => {
 		}, [] as any)
 	}, [messages, currentUser])
 
-	// console.log({ messages })
-
 	const onFetchMessages = useCallback(
 		async (query: any = {}) => {
 			const [err, res] = await fetchMessages(conversationId, {
-				page: messages.page,
+				page: messages.currentPage,
 				'per-page': messages.perPage,
 				...query,
 			})
@@ -62,8 +60,14 @@ const useMessages = (conversationId: string) => {
 			if (err) return console.log('onFetchMessages::ERR', res)
 			mergeMessages({ _id: conversationId, messages: res.messages })
 		},
-		[conversationId, messages.page, messages.perPage, mergeMessages]
+		[conversationId, messages.currentPage, messages.perPage, mergeMessages]
 	)
+
+	const onFetchMoreMessages = useCallback(() => {
+		if (isFetchedAllMessages) return
+
+		setMessages(conversationId, (v) => ({ currentPage: v.currentPage + 1 }))
+	}, [conversationId, isFetchedAllMessages, setMessages])
 
 	// Fetch messages from server
 	useEffect(() => {
@@ -72,6 +76,7 @@ const useMessages = (conversationId: string) => {
 
 	return {
 		messagesGroup,
+		onFetchMoreMessages,
 		messages: conversationMessages,
 	}
 }

@@ -9,10 +9,15 @@ import Message from '../components/conversation/Message'
 import { MessageTypes } from '../context/types'
 import cn from 'classnames'
 import moment from 'moment'
+import { Scrollable } from '../components/base/Scrollable'
 
 const Conversation = withRouter(({ match }) => {
-	const { currentConversation, onSendMessage, messagesGroup } =
-		useCurrentConversation()
+	const {
+		messagesGroup,
+		currentConversation,
+		onSendMessage,
+		onFetchMoreMessages,
+	} = useCurrentConversation()
 
 	const onMessage = (content: string) => {
 		return onSendMessage({
@@ -31,7 +36,10 @@ const Conversation = withRouter(({ match }) => {
 				<div className="flex-1 flex flex-col overflow-hidden">
 					<div className="flex-1 flex flex-col relative overflow-hidden">
 						<div className="absolute bg-gradient-to-b from-gray-100 dark:from-gray-900 to-transparent inset-x-0 top-0 h-12" />
-						<div className="flex-1 p-4 pt-12 overflow-y-auto flex flex-col-reverse scrollbar">
+						<Scrollable
+							className="flex-1 p-4 pt-12 overflow-y-auto flex flex-col-reverse scrollbar"
+							onBottom={onFetchMoreMessages}
+						>
 							{messagesGroup.map(({ sender, messages, isMine }, key) => {
 								return (
 									<div key={key}>
@@ -103,7 +111,7 @@ const Conversation = withRouter(({ match }) => {
 									/>
 								)}
 							/> */}
-						</div>
+						</Scrollable>
 					</div>
 					<MessageBar onMessage={onMessage} />
 				</div>

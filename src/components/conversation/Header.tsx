@@ -29,8 +29,8 @@ const ConversationHeader: React.FC<Props> = ({
 					<h4 className="text-primary">
 						{conversation.isGroup
 							? conversation.name
-							: conversation.members.find((m) => m.user?.name)?.user
-									?.name}
+							: (conversation?.members ?? []).find((m) => m.user?.name)
+									?.user?.name}
 					</h4>
 					<p className="text-sm text-gray-500">Active now</p>
 				</div>

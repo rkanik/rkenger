@@ -4,10 +4,11 @@ import { useSuperState } from '../hooks'
 import { Conversations } from '../services'
 import { createContext, useCallback, useContext } from 'react'
 
-import type { FetchResponse } from 'vuelpers'
+import { createPaginaion, FetchResponse, Pagination } from 'vuelpers'
+import { deepMerge } from 'deep-array'
 
 export type ConversationState = {
-	conversations: Conversation[]
+	conversations: Pagination<Conversation>
 	currentConversation: Conversation | null
 }
 
@@ -23,22 +24,48 @@ export type TConversationContext = ConversationState & {
 const ConversationContext = createContext<TConversationContext>(null!)
 const ConversationProvider: React.FC = ({ children }) => {
 	const [state, { setState }] = useSuperState<ConversationState>({
-		conversations: [],
+		conversations: createPaginaion(),
 		currentConversation: null,
 	})
 
-	const fetchConversations = useCallback(
-		async (payload: any) => {
-			console.log('fetchConversations')
-			return viaCallback(Conversations.fetch(payload), ([err, res]) => {
-				if (err) return
-				setState((state) => ({
+	const setConversations = useCallback(
+		(payload: any) => {
+			setState((state) => {
+				return {
 					...state,
-					conversations: res.conversations,
-				}))
+					conversations: {
+						...state.conversations,
+						...(typeof payload === 'function'
+							? payload(state.conversations)
+							: payload),
+					},
+				}
 			})
 		},
 		[setState]
+	)
+
+	const fetchConversations = useCallback(
+		async (payload: any) => {
+			return viaCallback(Conversations.fetch(payload), ([err, res]) => {
+				if (err) return
+				setConversations((v: any) => {
+					if (res.conversations.currentPage > 1) {
+						res.conversations.data = deepMerge(
+							v.data,
+							res.conversations.data,
+							'_id',
+							'push'
+						)
+					}
+					return {
+						...v,
+						...res.conversations,
+					}
+				})
+			})
+		},
+		[setConversations]
 	)
 
 	const fetchConversationById = useCallback(
@@ -60,39 +87,6 @@ const ConversationProvider: React.FC = ({ children }) => {
 		},
 		[setState]
 	)
-
-	// const removeConversation = (
-	// 	id: number,
-	// 	conv: Conversation,
-	// 	convs: Conversation[]
-	// ) => {
-	// 	remove({ conversations: id })
-	// 	remove({ conversations: conv })
-	// 	remove({ conversations: convs })
-
-	// 	remove({
-	// 		conversations: {
-	// 			itemKey: 'id',
-	// 			itemValue: id,
-	// 		},
-	// 	})
-	// 	remove({
-	// 		conversations: {
-	// 			item: conv,
-	// 		},
-	// 	})
-	// 	remove({
-	// 		conversations: {
-	// 			items: convs,
-	// 			itemKey: 'type',
-	// 		},
-	// 	})
-	// }
-
-	// const removeConversationByIndex = (index: number, ...indexes: number[]) => {
-	// 	removeByIndex({ conversations: index })
-	// 	removeByIndex({ conversations: indexes })
-	// }
 
 	return (
 		<ConversationContext.Provider

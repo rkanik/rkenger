@@ -1,10 +1,12 @@
-const usePartialSetState = <S, T extends (payload: any) => void>(
+const usePartialSetState = <S, T extends (payload: any) => void = any>(
 	setState: T
 ) => {
-	const setPartialState = (partialState: Partial<S>) => {
-		setState((prevState: S) => ({ ...prevState, ...partialState }))
+	const setPartialState = (payload: Partial<S> | ((v: S) => Partial<S>)) => {
+		return setState((state: S) => ({
+			...state,
+			...(typeof payload === 'function' ? payload(state) : payload),
+		}))
 	}
-
 	return setPartialState
 }
 

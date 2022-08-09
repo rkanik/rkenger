@@ -1,12 +1,7 @@
 import { useState, Dispatch, SetStateAction } from 'react'
 
-import {
-	get as _get,
-	set as _set,
-	isArray,
-	isPlainObject,
-	cloneDeep,
-} from 'lodash'
+import { get as _get, set as _set, isArray, isPlainObject } from 'lodash'
+import { usePartialSetState } from './usePartialSetState'
 
 export type FilteredKeys<T, U> = {
 	[P in keyof T]: T[P] extends U ? P : never
@@ -244,6 +239,7 @@ const useSuperState = <T extends any>(
 	T,
 	{
 		setState: Dispatch<SetStateAction<T>>
+		setPartialState: (payload: Partial<T> | ((v: T) => Partial<T>)) => void
 
 		set: (payload: PayloadSet<T>) => void
 
@@ -259,6 +255,7 @@ const useSuperState = <T extends any>(
 	}
 ] => {
 	const [state, setState] = useState(initialValue)
+	const setPartialState = usePartialSetState<T>(setState)
 
 	const set = (payload: PayloadSet<T>) => {}
 
@@ -294,6 +291,7 @@ const useSuperState = <T extends any>(
 		{
 			set,
 			setState,
+			setPartialState,
 
 			push,
 			merge,

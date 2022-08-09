@@ -10,14 +10,16 @@ import { useMessages } from './useMessages'
 const useCurrentConversation = () => {
 	const params = useParams<{ id: string }>()
 
-	const { messagesGroup } = useMessages(params.id)
+	const { messagesGroup, onFetchMoreMessages } = useMessages(params.id)
 	const { mergeMessages } = useMessagesContext()
 	const { conversations, currentConversation, setCurrentConversation } =
 		useConversationContext()
 
 	// Get the conversation from the conversations array
 	useEffect(() => {
-		const localConversation = conversations.find((v) => v._id === params.id)
+		const localConversation = conversations.data.find((v) => {
+			return v._id === params.id
+		})
 		if (localConversation) setCurrentConversation(localConversation)
 	}, [params.id, conversations, setCurrentConversation])
 
@@ -42,6 +44,7 @@ const useCurrentConversation = () => {
 		messagesGroup,
 		currentConversation,
 		onSendMessage,
+		onFetchMoreMessages,
 	}
 }
 

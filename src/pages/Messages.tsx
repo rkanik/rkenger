@@ -153,7 +153,7 @@ const Messages: React.FC<Props> = ({ history }) => {
 					{/* <ConversationSubheader text="Direct" /> */}
 					<ConversationList
 						classNames="mt-2"
-						list={conversations}
+						list={conversations.data}
 						item={(item, index) => (
 							<ConversationListItem
 								key={index}

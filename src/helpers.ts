@@ -1,5 +1,4 @@
 import { mse } from './enums'
-import { Pagination } from './types'
 
 export const nameInitial = (v = ''): string => {
 	return v
@@ -7,18 +6,6 @@ export const nameInitial = (v = ''): string => {
 		.map((v) => v[0] || '')
 		.join('')
 		.substring(0, 2)
-}
-
-export const initialList = <T>(
-	v: Partial<Pagination<T>> = {}
-): Pagination<T> => {
-	return {
-		page: 1,
-		total: 0,
-		perPage: 10,
-		data: [],
-		...v,
-	}
 }
 
 export const classify = (...classes: any[]): string => {

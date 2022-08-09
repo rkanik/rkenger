@@ -1,8 +1,8 @@
-import { FetchResponse } from 'vuelpers'
 import { createContext } from 'react'
 
 import type { Message } from './types'
-import type { Pagination, ConversationMessage } from '../types'
+import type { Pagination } from 'vuelpers'
+import type { ConversationMessage } from '../types'
 
 export type MessageState = {
 	conversationMessages: ConversationMessage[]
@@ -16,14 +16,20 @@ export type TMessageContext = MessageState & {
 		_id: string
 		messages: Message[] | Pagination<Message>
 	}) => void
-	fetchMessages: (
-		conversationId: string,
-		payload?: any
-	) => Promise<[boolean, FetchResponse]>
-	sendMessage: (
-		id: string,
-		message: Partial<Message>
-	) => Promise<[boolean, FetchResponse]>
+
+	setConversationMessage: (
+		_id: string,
+		payload:
+			| Partial<ConversationMessage>
+			| ((v: ConversationMessage) => Partial<ConversationMessage>)
+	) => void
+
+	setMessages: (
+		_id: string,
+		payload:
+			| Partial<Pagination<Message>>
+			| ((v: Pagination<Message>) => Partial<Pagination<Message>>)
+	) => void
 }
 
 const MessageContext = createContext<TMessageContext>(null!)
