@@ -1,4 +1,5 @@
-import { _group } from '../consts'
+import { useMemo } from 'react'
+import { useAuthContext } from '../context'
 import { Conversation, User } from '../context/types'
 import { classify, howAgo, nameInitial } from '../helpers'
 import Avatar from './utils/Avatar'
@@ -13,8 +14,12 @@ interface PropsTypes {
 	onClick?: (conversation: Conversation) => void
 }
 const ConversationListItem = ({ active, user, item, onClick }: PropsTypes) => {
-	const avatar = (() => {
-		if (item.type === _group) {
+	const { currentUser } = useAuthContext()
+
+	const avatar = useMemo(() => {
+		if (!item) return <Avatar src={placeholderSrc} size="h-full w-full" />
+
+		if (item?.isGroup) {
 			if (item.group?.thumbnail)
 				return <Avatar src={item.group?.thumbnail} size="h-full w-full" />
 			const memLen = item.members.length
@@ -56,7 +61,7 @@ const ConversationListItem = ({ active, user, item, onClick }: PropsTypes) => {
 				</div>
 			)
 		}
-		let friend = item.members.find((u) => u._id !== user?._id)
+		let friend = item.members.find((u) => u._id !== currentUser?._id)
 		if (friend)
 			return (
 				<Avatar
@@ -67,7 +72,7 @@ const ConversationListItem = ({ active, user, item, onClick }: PropsTypes) => {
 				/>
 			)
 		else return <Avatar src={placeholderSrc} size="h-full w-full" />
-	})()
+	}, [item, currentUser])
 
 	return (
 		<div

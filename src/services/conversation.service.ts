@@ -33,4 +33,8 @@ const Conversations = (id: string) => {
 
 Conversations.fetch = (query: any) => fetch.get('/conversations', query)
 
-export { ConversationApi, Conversations }
+const fetchConversations = (query?: any) => {
+	return fetch.get('/conversations', query)
+}
+
+export { ConversationApi, Conversations, fetchConversations }

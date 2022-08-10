@@ -9,7 +9,10 @@ interface Props {}
 
 const MessagesLayout: React.FC<Props> = ({ children }) => {
 	const $auth = useAuthContext()
+
 	const { conversations, onClickConversationItem } = useConversations()
+
+	console.log(conversations.data)
 
 	return (
 		<div className="flex flex-col h-screen">

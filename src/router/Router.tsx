@@ -17,7 +17,7 @@ import Home from '../pages/Home'
 import SignIn from '../pages/SignIn'
 import Register from '../pages/Register'
 
-import { useAuthContext, MessagesProvider } from '../context'
+import { useAuthContext } from '../context'
 import { Test } from '../pages/Test'
 import MessagesLayout from '../layouts/MessagesLayout'
 import Conversation from '../pages/Conversation'

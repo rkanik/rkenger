@@ -1,6 +1,9 @@
 import { Pagination } from 'vuelpers'
 import { Message } from './context/types'
 
+export type PartialPayload<T> = Partial<T> | ((v: T) => Partial<T>)
+export type SetPaginated<T> = PartialPayload<Pagination<T>>
+
 export type ConversationMessage = {
 	_id: string
 	messages: Pagination<Message>

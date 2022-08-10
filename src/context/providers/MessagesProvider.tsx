@@ -1,4 +1,4 @@
-import { MessageState, MessageContext, TMessageContext } from '../'
+import { MessagesState, MessagesContext, TMessagesContext } from '../index'
 import { useCallback } from 'react'
 import { useSuperState } from '../../hooks'
 import { ConversationMessage } from '../../types'
@@ -9,13 +9,13 @@ import { createPaginaion } from 'vuelpers'
 import type { Pagination } from 'vuelpers'
 
 const MessageProvider: React.FC = ({ children }) => {
-	const [state, { setState, setPartialState }] = useSuperState<MessageState>({
-		messages: {},
+	const [state, { setState, setPartialState }] = useSuperState<MessagesState>({
+		messages: new Map(),
 		conversationMessages: [],
 	})
 
 	const setConversationMessage = useCallback<
-		TMessageContext['setConversationMessage']
+		TMessagesContext['setConversationMessage']
 	>(
 		(_id, payload) => {
 			return setPartialState((state) => ({
@@ -31,7 +31,7 @@ const MessageProvider: React.FC = ({ children }) => {
 		[setPartialState]
 	)
 
-	const setMessages = useCallback<TMessageContext['setMessages']>(
+	const setMessages = useCallback<TMessagesContext['setMessages']>(
 		(_id, payload) => {
 			return setConversationMessage(_id, (v) => ({
 				messages: {
@@ -119,7 +119,7 @@ const MessageProvider: React.FC = ({ children }) => {
 	)
 
 	return (
-		<MessageContext.Provider
+		<MessagesContext.Provider
 			value={{
 				...state,
 				setMessages,
@@ -128,7 +128,7 @@ const MessageProvider: React.FC = ({ children }) => {
 			}}
 		>
 			{children}
-		</MessageContext.Provider>
+		</MessagesContext.Provider>
 	)
 }
 

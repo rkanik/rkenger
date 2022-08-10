@@ -1,5 +1,4 @@
 export * from './AuthContext'
-export * from './MessagesContext'
 
-export * from './MessageContext'
+export * from './MessagesContext'
 export * from './ConversationContext'

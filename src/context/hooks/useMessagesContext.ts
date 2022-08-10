@@ -1,8 +1,8 @@
 import { useContext } from 'react'
-import { MessageContext } from '../'
+import { MessagesContext } from '../MessagesContext'
 
 const useMessagesContext = () => {
-	const context = useContext(MessageContext)
+	const context = useContext(MessagesContext)
 	if (!context) {
 		throw new Error('MessagesContext must be used within MessagesProvider')
 	}

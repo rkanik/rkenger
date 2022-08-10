@@ -28,10 +28,12 @@ const Conversation = withRouter(({ match }) => {
 
 	return (
 		<div className="flex-1 flex flex-col overflow-hidden">
-			<div className="flex-none flex pb-0 z-10">
-				<ConversationHeader conversation={currentConversation} />
-				<ConversationActionsHeader />
-			</div>
+			{currentConversation && (
+				<div className="flex-none flex pb-0 z-10">
+					<ConversationHeader conversation={currentConversation} />
+					<ConversationActionsHeader />
+				</div>
+			)}
 			<div className="flex-1 flex overflow-hidden">
 				<div className="flex-1 flex flex-col overflow-hidden">
 					<div className="flex-1 flex flex-col relative overflow-hidden">
@@ -116,10 +118,12 @@ const Conversation = withRouter(({ match }) => {
 					<MessageBar onMessage={onMessage} />
 				</div>
 
-				<ConversationDetails
-					expanded={true}
-					conversation={currentConversation}
-				/>
+				{currentConversation && (
+					<ConversationDetails
+						expanded={true}
+						conversation={currentConversation}
+					/>
+				)}
 			</div>
 		</div>
 	)

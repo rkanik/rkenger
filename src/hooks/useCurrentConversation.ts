@@ -1,33 +1,38 @@
-import { useCallback, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
-import { useConversationContext } from '../context'
-import { useMessagesContext } from '../context/hooks'
-import { Conversation, Message } from '../context/types'
+import { useCallback, useEffect, useMemo } from 'react'
+
+// api
 import { sendMessage } from '../services'
-import { useConversation } from './useConversation'
+
+// hooks
 import { useMessages } from './useMessages'
+import { useParams } from 'react-router-dom'
+import { useConversation } from './useConversation'
+import { useConversationsContext, useMessagesContext } from '../context/hooks'
+
+// types
+import type { Message } from '../context/types'
 
 const useCurrentConversation = () => {
 	const params = useParams<{ id: string }>()
 
 	const { messagesGroup, onFetchMoreMessages } = useMessages(params.id)
 	const { mergeMessages } = useMessagesContext()
-	const { conversations, currentConversation, setCurrentConversation } =
-		useConversationContext()
+	const { conversations, conversationPushOrUpdate, setCurrentConversation } =
+		useConversationsContext()
 
-	// Get the conversation from the conversations array
-	useEffect(() => {
-		const localConversation = conversations.data.find((v) => {
-			return v._id === params.id
+	const currentConversation = useMemo(() => {
+		return conversations.data.find((conversation) => {
+			return conversation._id === params.id
 		})
-		if (localConversation) setCurrentConversation(localConversation)
-	}, [params.id, conversations, setCurrentConversation])
+	}, [params.id, conversations])
 
 	// Get the conversation from the server
 	const { conversation } = useConversation(params.id)
 	useEffect(() => {
-		setCurrentConversation(conversation)
-	}, [conversation, setCurrentConversation])
+		if (!conversation) return
+
+		conversationPushOrUpdate(conversation)
+	}, [conversation, conversationPushOrUpdate])
 
 	const onSendMessage = useCallback(
 		async (message: Partial<Message>) => {

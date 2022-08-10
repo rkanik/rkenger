@@ -2,10 +2,12 @@ import { viaCallback } from '../fetch'
 import { Conversation } from './types'
 import { useSuperState } from '../hooks'
 import { Conversations } from '../services'
-import { createContext, useCallback, useContext } from 'react'
+import { createContext, useCallback } from 'react'
 
 import { createPaginaion, FetchResponse, Pagination } from 'vuelpers'
 import { deepMerge } from 'deep-array'
+import { isArray, isFunction } from 'lodash'
+import { SetPaginated } from '../types'
 
 export type ConversationState = {
 	conversations: Pagination<Conversation>
@@ -19,20 +21,30 @@ export type TConversationContext = ConversationState & {
 		id: string,
 		payload?: any
 	) => Promise<[boolean, FetchResponse]>
+
+	setConversations: (payload: SetPaginated<Conversation>) => void
+	conversationPushOrUpdate: (payload: Conversation | Conversation[]) => void
 }
 
 const ConversationContext = createContext<TConversationContext>(null!)
 const ConversationProvider: React.FC = ({ children }) => {
-	const [state, { setState }] = useSuperState<ConversationState>({
-		conversations: createPaginaion(),
-		currentConversation: null,
-	})
+	const [state, { setState, setPartialState }] =
+		useSuperState<ConversationState>({
+			conversations: createPaginaion(),
+			currentConversation: null,
+		})
 
-	const setConversations = useCallback(
-		(payload: any) => {
-			setState((state) => {
+	const setConversations = useCallback<
+		TConversationContext['setConversations']
+	>(
+		(payload) => {
+			console.log('here')
+			setPartialState((state) => {
+				console.log(
+					'setPartialState',
+					isFunction(payload) && payload(state.conversations)
+				)
 				return {
-					...state,
 					conversations: {
 						...state.conversations,
 						...(typeof payload === 'function'
@@ -42,7 +54,7 @@ const ConversationProvider: React.FC = ({ children }) => {
 				}
 			})
 		},
-		[setState]
+		[setPartialState]
 	)
 
 	const fetchConversations = useCallback(
@@ -88,13 +100,31 @@ const ConversationProvider: React.FC = ({ children }) => {
 		[setState]
 	)
 
+	const conversationPushOrUpdate = useCallback(
+		(payload: Conversation | Conversation[]) => {
+			return setConversations((conversations) => {
+				return {
+					data: deepMerge(
+						conversations.data,
+						isArray(payload) ? payload : [payload],
+						'_id',
+						'push'
+					),
+				}
+			})
+		},
+		[setConversations]
+	)
+
 	return (
 		<ConversationContext.Provider
 			value={{
 				...state,
+				setConversations,
 				fetchConversations,
 				fetchConversationById,
 				setCurrentConversation,
+				conversationPushOrUpdate,
 			}}
 		>
 			{children}
@@ -102,14 +132,4 @@ const ConversationProvider: React.FC = ({ children }) => {
 	)
 }
 
-const useConversationContext = () => {
-	const context = useContext(ConversationContext)
-	if (!context) {
-		throw new Error(
-			'ConversationContext must be used within ConversationProvider'
-		)
-	}
-	return context
-}
-
-export { ConversationContext, ConversationProvider, useConversationContext }
+export { ConversationContext, ConversationProvider }

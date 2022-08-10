@@ -1,18 +1,16 @@
 import { Conversation } from './../context/types'
 import { useEffect, useState } from 'react'
-import { useConversationContext } from '../context'
+import { useConversationsContext } from '../context/hooks'
 
 const useConversation = (id: string) => {
-	const [conversation, setConversation] = useState<Conversation>(null!)
-	const { fetchConversationById } = useConversationContext()
+	const [conversation, setConversation] = useState<Conversation>()
+	const { fetchConversationById } = useConversationsContext()
 
 	useEffect(() => {
 		fetchConversationById(id).then(([err, res]) => {
-			if (err) return
-			setConversation(res.conversation)
+			if (!err) setConversation(res.conversation)
 		})
 	}, [id, fetchConversationById])
-
 	return { conversation }
 }
 
