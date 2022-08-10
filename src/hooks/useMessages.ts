@@ -13,16 +13,17 @@ type MessagesGroup = {
 
 const useMessages = (conversationId: string) => {
 	const { currentUser } = useAuthContext()
-	const { conversationMessages, setMessages, mergeMessages } =
-		useMessagesContext()
+	const {
+		messages: mMessages,
+		conversationMessages,
+
+		_setMessages,
+	} = useMessagesContext()
 
 	const messages = useMemo<Pagination<Message>>(() => {
-		return (
-			conversationMessages.find((conversation) => {
-				return conversation._id === conversationId
-			})?.messages || createPaginaion<Message>({ perPage: 10 })
-		)
-	}, [conversationId, conversationMessages])
+		console.log('mMessages', mMessages)
+		return mMessages.get(conversationId) || createPaginaion<Message>()
+	}, [conversationId, mMessages])
 
 	const isFetchedAllMessages = useMemo(() => {
 		return messages.currentPage * messages.perPage >= messages.total
@@ -58,16 +59,16 @@ const useMessages = (conversationId: string) => {
 			})
 
 			if (err) return console.log('onFetchMessages::ERR', res)
-			mergeMessages({ _id: conversationId, messages: res.messages })
+			_setMessages(conversationId, res.messages)
 		},
-		[conversationId, messages.currentPage, messages.perPage, mergeMessages]
+		[conversationId, messages.currentPage, messages.perPage, _setMessages]
 	)
 
 	const onFetchMoreMessages = useCallback(() => {
 		if (isFetchedAllMessages) return
 
-		setMessages(conversationId, (v) => ({ currentPage: v.currentPage + 1 }))
-	}, [conversationId, isFetchedAllMessages, setMessages])
+		_setMessages(conversationId, (v) => ({ currentPage: v.currentPage + 1 }))
+	}, [conversationId, isFetchedAllMessages, _setMessages])
 
 	// Fetch messages from server
 	useEffect(() => {

@@ -6,4 +6,5 @@ export * from './useConversation'
 export * from './useConversations'
 export * from './useCurrentConversation'
 
+export * from './useMessage'
 export * from './useMessages'

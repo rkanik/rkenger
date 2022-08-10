@@ -15,9 +15,9 @@ import type { Message } from '../context/types'
 const useCurrentConversation = () => {
 	const params = useParams<{ id: string }>()
 
+	const { _setMessages } = useMessagesContext()
 	const { messagesGroup, onFetchMoreMessages } = useMessages(params.id)
-	const { mergeMessages } = useMessagesContext()
-	const { conversations, conversationPushOrUpdate, setCurrentConversation } =
+	const { conversations, conversationPushOrUpdate, conversationUpdate } =
 		useConversationsContext()
 
 	const currentConversation = useMemo(() => {
@@ -39,10 +39,10 @@ const useCurrentConversation = () => {
 			const [err, res] = await sendMessage(params.id, message)
 			if (err) return console.log('onSendMessage::ERR', res)
 
-			mergeMessages({ _id: params.id, messages: [res.newMessage] })
-			setCurrentConversation({ messages: [res.newMessage] })
+			_setMessages(params.id, { data: [res.newMessage] })
+			conversationUpdate(params.id, { messages: [res.newMessage] })
 		},
-		[params.id, mergeMessages, setCurrentConversation]
+		[params.id, _setMessages, conversationUpdate]
 	)
 
 	return {

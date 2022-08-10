@@ -12,8 +12,6 @@ const MessagesLayout: React.FC<Props> = ({ children }) => {
 
 	const { conversations, onClickConversationItem } = useConversations()
 
-	console.log(conversations.data)
-
 	return (
 		<div className="flex flex-col h-screen">
 			<div className="flex h-full ">

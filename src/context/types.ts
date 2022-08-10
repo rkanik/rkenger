@@ -42,7 +42,7 @@ export interface User {
 export interface Message extends BaseModel {
 	id: string
 	_id: string
-	type: MessageTypes
+	type: 'text' | 'voice' | 'image' | 'link' | 'video'
 	sender: User
 	text: string
 	message: string

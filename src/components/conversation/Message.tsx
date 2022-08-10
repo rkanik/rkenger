@@ -14,7 +14,7 @@ type Props = {
 const Message: React.FC<Props> = ({ isMe, msg, index, msgsLen, onDelete }) => {
 	// Methods
 	const handleDelete = () => {
-		onDelete && onDelete(msg.id)
+		onDelete && onDelete(msg._id)
 	}
 
 	// Computed

@@ -7,7 +7,7 @@ import { createContext, useCallback } from 'react'
 import { createPaginaion, FetchResponse, Pagination } from 'vuelpers'
 import { deepMerge } from 'deep-array'
 import { isArray, isFunction } from 'lodash'
-import { SetPaginated } from '../types'
+import { PartialPayload, SetPaginated } from '../types'
 
 export type ConversationState = {
 	conversations: Pagination<Conversation>
@@ -24,6 +24,10 @@ export type TConversationContext = ConversationState & {
 
 	setConversations: (payload: SetPaginated<Conversation>) => void
 	conversationPushOrUpdate: (payload: Conversation | Conversation[]) => void
+	conversationUpdate: (
+		_id: string,
+		payload: PartialPayload<Conversation>
+	) => void
 }
 
 const ConversationContext = createContext<TConversationContext>(null!)
@@ -38,12 +42,7 @@ const ConversationProvider: React.FC = ({ children }) => {
 		TConversationContext['setConversations']
 	>(
 		(payload) => {
-			console.log('here')
 			setPartialState((state) => {
-				console.log(
-					'setPartialState',
-					isFunction(payload) && payload(state.conversations)
-				)
 				return {
 					conversations: {
 						...state.conversations,
@@ -116,10 +115,28 @@ const ConversationProvider: React.FC = ({ children }) => {
 		[setConversations]
 	)
 
+	const conversationUpdate = useCallback<
+		TConversationContext['conversationUpdate']
+	>(
+		(_id, payload) => {
+			return setConversations((conversations) => {
+				return {
+					data: conversations.data.map((v) => {
+						if (v._id !== _id) return v
+						const partial = isFunction(payload) ? payload(v) : payload
+						return { ...v, ...partial }
+					}),
+				}
+			})
+		},
+		[setConversations]
+	)
+
 	return (
 		<ConversationContext.Provider
 			value={{
 				...state,
+				conversationUpdate,
 				setConversations,
 				fetchConversations,
 				fetchConversationById,
