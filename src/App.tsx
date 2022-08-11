@@ -1,9 +1,10 @@
 import Router from './router/Router'
 
 import { GlobalProvider } from './context/GlobalContext'
-import { AuthProvider, ConversationProvider } from './context'
 import { MessageProvider } from './context/providers'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+
+import { AuthProvider, ConversationProvider, SocketProvider } from './context'
 
 function App() {
 	return (
@@ -11,11 +12,13 @@ function App() {
 			<QueryClientProvider client={new QueryClient()}>
 				<GlobalProvider>
 					<AuthProvider>
-						<ConversationProvider>
-							<MessageProvider>
-								<Router />
-							</MessageProvider>
-						</ConversationProvider>
+						<SocketProvider>
+							<ConversationProvider>
+								<MessageProvider>
+									<Router />
+								</MessageProvider>
+							</ConversationProvider>
+						</SocketProvider>
 					</AuthProvider>
 				</GlobalProvider>
 			</QueryClientProvider>

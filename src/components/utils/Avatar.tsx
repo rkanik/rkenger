@@ -1,5 +1,7 @@
+import cn from 'classnames'
+
 import { useMemo } from 'react'
-import { classify, letter, nameInitial } from '../../helpers'
+import { letter, nameInitial } from '../../helpers'
 
 type PropsTypes = {
 	alt?: string
@@ -32,7 +34,7 @@ const Avatar = ({
 
 	return (
 		<div
-			className={classify([
+			className={cn([
 				size,
 				className,
 				'overflow-hidden',
@@ -45,7 +47,7 @@ const Avatar = ({
 				<img
 					src={src}
 					alt={alt || ''}
-					className={classify([
+					className={cn([
 						'h-full w-full object-cover object-center',
 						{
 							'rounded-full': circle,

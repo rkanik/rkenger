@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { useAuthContext } from '../context'
+import { useSocketContext } from '../context/hooks/useSocketContext'
 import { Conversation, User } from '../context/types'
 import { classify, howAgo, nameInitial } from '../helpers'
 import Avatar from './utils/Avatar'
@@ -15,13 +16,28 @@ interface PropsTypes {
 }
 const ConversationListItem = ({ active, user, item, onClick }: PropsTypes) => {
 	const { currentUser } = useAuthContext()
+	const { isOnline } = useSocketContext()
+
+	const otherMembers = useMemo(() => {
+		return item.members.filter((member) => {
+			return member.user._id !== currentUser?._id
+		})
+	}, [item.members, currentUser])
+
+	const isActive = useMemo(() => {
+		return otherMembers.some((member) => {
+			return isOnline(member.user)
+		})
+	}, [otherMembers, isOnline])
 
 	const avatar = useMemo(() => {
 		if (!item) return <Avatar src={placeholderSrc} size="h-full w-full" />
 
 		if (item?.isGroup) {
-			if (item.group?.thumbnail)
+			if (item.group?.thumbnail) {
 				return <Avatar src={item.group?.thumbnail} size="h-full w-full" />
+			}
+
 			const memLen = item.members.length
 			return (
 				<div className="relative h-full w-full">
@@ -61,7 +77,8 @@ const ConversationListItem = ({ active, user, item, onClick }: PropsTypes) => {
 				</div>
 			)
 		}
-		let friend = item.members.find((u) => u._id !== currentUser?._id)
+
+		let friend = otherMembers[0]
 		if (friend)
 			return (
 				<Avatar
@@ -72,7 +89,7 @@ const ConversationListItem = ({ active, user, item, onClick }: PropsTypes) => {
 				/>
 			)
 		else return <Avatar src={placeholderSrc} size="h-full w-full" />
-	}, [item, currentUser])
+	}, [item, otherMembers])
 
 	return (
 		<div
@@ -86,19 +103,21 @@ const ConversationListItem = ({ active, user, item, onClick }: PropsTypes) => {
 			{/* Avatar */}
 			<div className="flex-none w-12 h-12 relative">
 				{avatar}
-				<div
-					className={classify([
-						'absolute right-0 flex items-center justify-center bottom-0 rounded-full bg-gray-50 dark:bg-gray-800',
-						item.members.length > 2 ? 'h-3 w-3' : 'h-4 w-4',
-					])}
-				>
+				{isActive && (
 					<div
 						className={classify([
-							'transform scale-90 rounded-full bg-indigo-500 dark:bg-indigo-400',
-							item.members.length > 2 ? 'h-2 w-2' : 'h-3 w-3',
+							'absolute right-0 flex items-center justify-center bottom-0 rounded-full bg-gray-50 dark:bg-gray-800',
+							item.members.length > 2 ? 'h-3 w-3' : 'h-4 w-4',
 						])}
-					/>
-				</div>
+					>
+						<div
+							className={classify([
+								'transform scale-90 rounded-full bg-indigo-500 dark:bg-indigo-400',
+								item.members.length > 2 ? 'h-2 w-2' : 'h-3 w-3',
+							])}
+						/>
+					</div>
+				)}
 			</div>
 
 			<div className="ml-4 flex-1">
@@ -106,8 +125,8 @@ const ConversationListItem = ({ active, user, item, onClick }: PropsTypes) => {
 					<h4 className="text-primary">
 						{item.isGroup
 							? item.name
-							: item.members[0].user.name ||
-							  item.members[0].user.username}
+							: otherMembers[0].user.name ||
+							  otherMembers[0].user.username}
 					</h4>
 					{item.lastMessage && (
 						<span className="text-xs text-gray-500">
