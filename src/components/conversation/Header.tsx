@@ -1,8 +1,11 @@
 import Avatar from '../utils/Avatar'
-import { Conversation, User } from '../../context/types'
-import { IconButton } from '../utils/Button'
-import { Fragment } from 'react'
 import Looper from '../utils/Looper'
+
+import { Fragment } from 'react'
+import { Box } from '../../pages/Test'
+import { nameInitial } from '../../helpers'
+import { IconButton } from '../utils/Button'
+import { Conversation } from '../../context/types'
 
 const placeholderSrc =
 	'https://modrika.com/wp-content/uploads/avatars/1560/1560-bpfull.jpg'
@@ -44,7 +47,7 @@ const ConversationHeader: React.FC<Props> = ({
 
 					<Looper
 						items={conversation.members}
-						item={(item: User, index) => (
+						item={(member, index) => (
 							<div
 								key={index}
 								style={{ zIndex: 100 - index }}
@@ -52,12 +55,17 @@ const ConversationHeader: React.FC<Props> = ({
 							>
 								<Avatar
 									size="h-10 w-10"
-									src={item.thumbnail}
+									alt={member.user.name}
+									src={member.user.thumbnail}
+									text={nameInitial(member.user.name)}
 									className="p-3px bg-white dark:bg-gray-800"
 								/>
-								<div className="h-3 w-3 absolute right-0 flex items-center justify-center bottom-0 rounded-full bg-gray-50 dark:bg-gray-800">
+								<Box
+									_if={Boolean(member.isOnline)}
+									className="h-3 w-3 absolute right-0 flex items-center justify-center bottom-0 rounded-full bg-gray-50 dark:bg-gray-800"
+								>
 									<div className="h-2 w-2 rounded-full bg-indigo-500 dark:bg-indigo-400" />
-								</div>
+								</Box>
 							</div>
 						)}
 					/>

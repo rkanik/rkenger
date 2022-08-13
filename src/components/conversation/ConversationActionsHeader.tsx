@@ -42,7 +42,10 @@ const ConversationActionsHeader: React.FC = () => {
 					<ProfileMenuToggler
 						onClick={onClick}
 						name={$auth.currentUser?.name as string}
-						src={$auth.currentUser?.thumbnail as string}
+						src={
+							$auth.currentUser?.thumbnail ||
+							'https://i.ibb.co/hmYbNmH/rkanik-and-sadnan.jpg'
+						}
 						className="ml-2"
 					/>
 				)}

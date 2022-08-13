@@ -55,6 +55,7 @@ export interface Message extends BaseModel {
 	isForwarded?: boolean
 	forwardedFrom?: boolean
 	messageId?: string
+	conversation: string | Conversation
 }
 export interface Conversation {
 	id: string

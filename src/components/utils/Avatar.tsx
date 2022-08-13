@@ -55,7 +55,14 @@ const Avatar = ({
 					])}
 				/>
 			) : (
-				<div className="h-full w-full grid place-items-center bg-gray-400 dark:bg-gray-600 dark:text-white">
+				<div
+					className={cn(
+						'h-full w-full grid place-items-center bg-gray-400 dark:bg-gray-600 dark:text-white',
+						{
+							'rounded-full': circle,
+						}
+					)}
+				>
 					<p className={textClass || 'text-base font-normal'}>{initial}</p>
 				</div>
 			)}

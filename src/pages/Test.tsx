@@ -1,4 +1,27 @@
+import { isFunction } from 'lodash'
 import { useSuperState } from '../hooks'
+
+type BoxProps = {
+	_if?: boolean
+	_items?: any[]
+	className?: string
+	children?: React.ReactNode | ((...args: any) => React.ReactNode)
+}
+const Box = ({ _if, _items = [], children, className }: BoxProps) => {
+	if (_if === false) return <></>
+
+	if (isFunction(children) && _items.length) {
+		return (
+			<div className={className}>
+				{_items.map((item, index) => {
+					return children(item, index)
+				})}
+			</div>
+		)
+	}
+
+	return <div className={className}>{children}</div>
+}
 
 const Test = () => {
 	const [state, {}] = useSuperState({
@@ -40,6 +63,8 @@ const Test = () => {
 			<h1>Test</h1>
 			<p>This is a test page</p>
 
+			<Box _if={state.loading}>hello</Box>
+
 			<button onClick={onRemoveByIndex}>Remove By Index</button>
 
 			<pre>
@@ -50,4 +75,4 @@ const Test = () => {
 	)
 }
 
-export { Test }
+export { Test, Box }

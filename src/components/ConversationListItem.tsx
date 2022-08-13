@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useAuthContext } from '../context'
 import { useSocketContext } from '../context/hooks/useSocketContext'
 import { Conversation, User } from '../context/types'
@@ -14,82 +14,114 @@ interface PropsTypes {
 	item: Conversation
 	onClick?: (conversation: Conversation) => void
 }
-const ConversationListItem = ({ active, user, item, onClick }: PropsTypes) => {
+const ConversationListItem = ({ active, item, onClick }: PropsTypes) => {
+	const { socket } = useSocketContext()
 	const { currentUser } = useAuthContext()
 	const { isOnline } = useSocketContext()
 
-	const otherMembers = useMemo(() => {
-		return item.members.filter((member) => {
-			return member.user._id !== currentUser?._id
-		})
-	}, [item.members, currentUser])
+	const otherMembers = useMemo(
+		() => {
+			return item.members.filter((member) => {
+				return member.user._id !== currentUser?._id
+			})
+		},
+		//
+		[item.members, currentUser]
+	)
 
-	const isActive = useMemo(() => {
-		return otherMembers.some((member) => {
-			return isOnline(member.user)
-		})
-	}, [otherMembers, isOnline])
+	const isActive = useMemo(
+		() => {
+			return otherMembers.some((member) => {
+				return isOnline(member.user)
+			})
+		},
+		//
+		[otherMembers, isOnline]
+	)
 
-	const avatar = useMemo(() => {
-		if (!item) return <Avatar src={placeholderSrc} size="h-full w-full" />
+	const avatar = useMemo(
+		() => {
+			if (!item) return <Avatar src={placeholderSrc} size="h-full w-full" />
 
-		if (item?.isGroup) {
-			if (item.group?.thumbnail) {
-				return <Avatar src={item.group?.thumbnail} size="h-full w-full" />
-			}
+			if (item?.isGroup) {
+				if (item.group?.thumbnail) {
+					return (
+						<Avatar src={item.group?.thumbnail} size="h-full w-full" />
+					)
+				}
 
-			const memLen = item.members.length
-			return (
-				<div className="relative h-full w-full">
-					{item.members.slice(0, 2).map((m, i) => (
-						<Avatar
-							key={m._id}
-							alt={m.user.name}
-							src={m.user.thumbnail}
-							size={memLen <= 2 ? 'h-8 w-8' : 'w-7 h-7'}
-							className={classify([
-								'absolute p-0.5 bg-gray-50 dark:bg-gray-800 shadow',
-								i === 0 ? 'z-10' : 'z-20',
-								{
-									'top-0 left-1.5': memLen > 2 && i === 0,
-									'top-0 right-0': memLen <= 2 && i === 0,
-									'bottom-0 left-0': i === 1,
-								},
-							])}
-						/>
-					))}
-					{memLen > 3 ? (
-						<Avatar
-							size="w-7 h-7"
-							text={memLen - 2}
-							textClass="text-sm text-white"
-							className="absolute shadow right-0 bottom-0 z-0 bg-pink-500"
-						/>
-					) : (
-						memLen === 3 && (
+				const memLen = item.members.length
+				return (
+					<div className="relative h-full w-full">
+						{item.members.slice(0, 2).map((m, i) => (
+							<Avatar
+								key={m._id}
+								alt={m.user.name}
+								src={m.user.thumbnail}
+								size={memLen <= 2 ? 'h-8 w-8' : 'w-7 h-7'}
+								className={classify([
+									'absolute p-0.5 bg-gray-50 dark:bg-gray-800 shadow',
+									i === 0 ? 'z-10' : 'z-20',
+									{
+										'top-0 left-1.5': memLen > 2 && i === 0,
+										'top-0 right-0': memLen <= 2 && i === 0,
+										'bottom-0 left-0': i === 1,
+									},
+								])}
+							/>
+						))}
+						{memLen > 3 ? (
 							<Avatar
 								size="w-7 h-7"
-								src={item.members[2].user.thumbnail}
-								className="absolute shadow p-0.5 bg-gray-50 dark:bg-gray-800 right-0 top-7 transform -translate-y-1/2 z-0"
+								text={memLen - 2}
+								textClass="text-sm text-white"
+								className="absolute shadow right-0 bottom-0 z-0 bg-pink-500"
 							/>
-						)
-					)}
-				</div>
-			)
-		}
+						) : (
+							memLen === 3 && (
+								<Avatar
+									size="w-7 h-7"
+									src={item.members[2].user.thumbnail}
+									className="absolute shadow p-0.5 bg-gray-50 dark:bg-gray-800 right-0 top-7 transform -translate-y-1/2 z-0"
+								/>
+							)
+						)}
+					</div>
+				)
+			}
 
-		let friend = otherMembers[0]
-		if (friend)
-			return (
-				<Avatar
-					src={friend.user.thumbnail}
-					alt={friend.user.name}
-					text={nameInitial(friend.user.name)}
-					size="h-full w-full"
-				/>
-			)
-		else return <Avatar src={placeholderSrc} size="h-full w-full" />
-	}, [item, otherMembers])
+			let friend = otherMembers[0]
+			if (friend)
+				return (
+					<Avatar
+						src={friend.user.thumbnail}
+						alt={friend.user.name}
+						text={nameInitial(friend.user.name)}
+						size="h-full w-full"
+					/>
+				)
+			else return <Avatar src={placeholderSrc} size="h-full w-full" />
+		},
+
+		//
+		[item, otherMembers]
+	)
+
+	const onUpdate = useCallback((data: any) => {
+		console.log('onUpdate', data)
+	}, [])
+
+	useEffect(
+		() => {
+			const event = `conversation:${item._id}:uddate`
+			socket.on(event, onUpdate)
+			return () => {
+				socket.off(event, onUpdate)
+			}
+		},
+		//
+		[item._id, socket, onUpdate]
+	)
 
 	return (
 		<div

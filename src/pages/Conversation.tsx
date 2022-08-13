@@ -1,17 +1,21 @@
-import { withRouter } from 'react-router-dom'
-import { useCurrentConversation } from '../hooks'
-
-import ConversationHeader from '../components/conversation/Header'
-import { ConversationActionsHeader } from '../components/conversation/ConversationActionsHeader'
-import ConversationDetails from '../components/conversation/Details'
-import MessageBar from '../components/MessageBar'
-import Message from '../components/conversation/Message'
-import { MessageTypes } from '../context/types'
 import cn from 'classnames'
 import moment from 'moment'
-import { Scrollable } from '../components/base/Scrollable'
 
-const Conversation = withRouter(({ match }) => {
+import { useState } from 'react'
+import { withRouter } from 'react-router-dom'
+import { MessageTypes } from '../context/types'
+import { useCurrentConversation } from '../hooks'
+import { Scrollable } from '../components/base/Scrollable'
+import { ConversationActionsHeader } from '../components/conversation/ConversationActionsHeader'
+
+import MessageBar from '../components/MessageBar'
+import Message from '../components/conversation/Message'
+import ConversationHeader from '../components/conversation/Header'
+import ConversationDetails from '../components/conversation/Details'
+
+const Conversation = withRouter(() => {
+	const [isExpanded, setIsExpanded] = useState(false)
+
 	const {
 		messagesGroup,
 		currentConversation,
@@ -23,6 +27,7 @@ const Conversation = withRouter(({ match }) => {
 		return onSendMessage({
 			text: content,
 			type: MessageTypes._text,
+			conversation: currentConversation?._id,
 		})
 	}
 
@@ -30,7 +35,10 @@ const Conversation = withRouter(({ match }) => {
 		<div className="flex-1 flex flex-col overflow-hidden">
 			{currentConversation && (
 				<div className="flex-none flex pb-0 z-10">
-					<ConversationHeader conversation={currentConversation} />
+					<ConversationHeader
+						conversation={currentConversation}
+						onToggleConversationDetails={() => setIsExpanded((v) => !v)}
+					/>
 					<ConversationActionsHeader />
 				</div>
 			)}
@@ -118,12 +126,10 @@ const Conversation = withRouter(({ match }) => {
 					<MessageBar onMessage={onMessage} />
 				</div>
 
-				{currentConversation && (
-					<ConversationDetails
-						expanded={true}
-						conversation={currentConversation}
-					/>
-				)}
+				<ConversationDetails
+					expanded={isExpanded}
+					conversation={currentConversation}
+				/>
 			</div>
 		</div>
 	)
